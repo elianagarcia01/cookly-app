@@ -4,6 +4,9 @@
  *
  * @format
  */
+import React, { useEffect } from 'react';
+import { initDatabase } from './src/database/database';
+import AppNavigator from './src/navigation/AppNavigator';
 
 import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
@@ -13,14 +16,18 @@ import {
 } from 'react-native-safe-area-context';
 
 function App() {
-  const isDarkMode = useColorScheme() === 'dark';
-
+  //const isDarkMode = useColorScheme() === 'dark';
+    useEffect(() => {
+      initDatabase();
+    }, []);
+    return <AppNavigator />;
+  /*
   return (
     <SafeAreaProvider>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <AppContent />
     </SafeAreaProvider>
-  );
+  ); */
 }
 
 function AppContent() {
