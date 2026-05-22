@@ -12,12 +12,44 @@ import {
 
 export default function HomeScreen() {
   const [meals, setMeals] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
+  const categories = [
+    { label: 'Pollo 🍗', value: 'Chicken' },
+    { label: 'Carne 🥩', value: 'Beef' },
+    { label: 'Mariscos 🐟', value: 'Seafood' },
+    { label: 'Postres 🍰', value: 'Dessert' },
+  ];
+
+  // 🔎 Traer todas las recetas (home inicial)
+  const fetchAllMeals = async () => {
+    try {
+      const res = await fetch(
+        'https://www.themealdb.com/api/json/v1/1/search.php?s='
+      );
+      const data = await res.json();
+      setMeals(data.meals || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 🍽️ Filtrar por categoría
+  const fetchMealsByCategory = async (category: string) => {
+    try {
+      const res = await fetch(
+        `https://www.themealdb.com/api/json/v1/1/filter.php?c=${category}`
+      );
+      const data = await res.json();
+      setMeals(data.meals || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 🚀 Al iniciar → sin filtro
   useEffect(() => {
-    fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=')
-      .then(res => res.json())
-      .then(data => setMeals(data.meals || []))
-      .catch(err => console.log(err));
+    fetchAllMeals();
   }, []);
 
   const renderMeal = ({ item }: any) => (
@@ -28,48 +60,63 @@ export default function HomeScreen() {
   );
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Descubre Recetas</Text>
+    <FlatList
+      data={meals}
+      keyExtractor={(item: any) => item.idMeal.toString()}
+      numColumns={2}
+      renderItem={renderMeal}
+      contentContainerStyle={{ padding: 16 }}
+      ListHeaderComponent={
+        <View>
+          <Text style={styles.title}>Descubre Recetas</Text>
 
-      {/* 🔍 Buscador */}
-      <TextInput
-        placeholder="Buscar recetas..."
-        style={styles.search}
-        placeholderTextColor="#999"
-      />
+          {/* 🔍 Buscador */}
+          <TextInput
+            placeholder="Buscar recetas..."
+            style={styles.search}
+            placeholderTextColor="#999"
+          />
 
-      {/* 🍽️ Categorías */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {['Desayuno', 'Almuerzo', 'Cena', 'Postres'].map(cat => (
-          <TouchableOpacity key={cat} style={styles.category}>
-            <Text>{cat}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+          {/* 🍽️ Categorías */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {categories.map(cat => (
+              <TouchableOpacity
+                key={cat.value}
+                style={[
+                  styles.category,
+                  selectedCategory === cat.value && styles.categorySelected,
+                ]}
+                onPress={() => {
+                  if (selectedCategory === cat.value) {
+                    // 🔁 Si vuelve a tocar → resetear
+                    setSelectedCategory(null);
+                    fetchAllMeals();
+                  } else {
+                    setSelectedCategory(cat.value);
+                    fetchMealsByCategory(cat.value);
+                  }
+                }}
+              >
+                <Text>{cat.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-      {/* ⭐ Recetas */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recetas Populares</Text>
-      </View>
-
-      <FlatList
-        data={meals}
-        renderItem={renderMeal}
-        keyExtractor={(item: any) => item.idMeal}
-        numColumns={2}
-        scrollEnabled={false}
-      />
-    </ScrollView>
+          {/* ⭐ Título dinámico en español */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              {selectedCategory
+                ? categories.find(c => c.value === selectedCategory)?.label
+                : 'Recetas Populares'}
+            </Text>
+          </View>
+        </View>
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    padding: 16,
-  },
-
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -88,6 +135,10 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginRight: 10,
+  },
+
+  categorySelected: {
+    backgroundColor: '#FFD166',
   },
 
   section: {
