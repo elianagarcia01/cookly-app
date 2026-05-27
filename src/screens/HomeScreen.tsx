@@ -10,16 +10,30 @@ import {
   ScrollView,
 } from 'react-native';
 
+import categoryTranslations from '../constants/categoryTranslations';
+import { useNavigation } from '@react-navigation/native';
+
 export default function HomeScreen() {
+  const navigation = useNavigation<any>();
   const [meals, setMeals] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [searchText, setSearchText] = useState('');
+  const categoryOrder = ['Breakfast', 'Starter', 'Pasta', 'Beef', 'Chicken', 'Seafood', 'Pork', 'Lamb', 'Goat', 'Side', 'Vegan', 'Vegetarian', 'Miscellaneous', 'Dessert'];
 
-  const categories = [
-    { label: 'Pollo 🍗', value: 'Chicken' },
-    { label: 'Carne 🥩', value: 'Beef' },
-    { label: 'Mariscos 🐟', value: 'Seafood' },
-    { label: 'Postres 🍰', value: 'Dessert' },
-  ];
+const fetchCategories = async () => {
+  try {
+    const res = await fetch('https://www.themealdb.com/api/json/v1/1/categories.php');
+    const data = await res.json();
+    const ordered = categoryOrder
+      .map(name => data.categories.find((c: any) => c.strCategory === name))
+      .filter(Boolean);
+    const rest = data.categories.filter((c: any) => !categoryOrder.includes(c.strCategory));
+    setCategories([...ordered, ...rest]);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   // 🔎 Traer todas las recetas (home inicial)
   const fetchAllMeals = async () => {
@@ -48,20 +62,21 @@ export default function HomeScreen() {
   };
 
   // 🚀 Al iniciar → sin filtro
-  useEffect(() => {
-    fetchAllMeals();
-  }, []);
+useEffect(() => {
+  fetchAllMeals();
+  fetchCategories();
+}, []);
 
   const renderMeal = ({ item }: any) => (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('RecipeDetail', { idMeal: item.idMeal, strMeal: item.strMeal })}>
       <Image source={{ uri: item.strMealThumb }} style={styles.image} />
       <Text style={styles.cardTitle}>{item.strMeal}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
     <FlatList
-      data={meals}
+      data={meals.filter((item: any) => item.strMeal.toLowerCase().includes(searchText.toLowerCase()))}
       keyExtractor={(item: any) => item.idMeal.toString()}
       numColumns={2}
       renderItem={renderMeal}
@@ -75,29 +90,33 @@ export default function HomeScreen() {
             placeholder="Buscar recetas..."
             style={styles.search}
             placeholderTextColor="#999"
+            value={searchText}
+            onChangeText={setSearchText}
           />
 
           {/* 🍽️ Categorías */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {categories.map(cat => (
               <TouchableOpacity
-                key={cat.value}
+                key={cat.strCategory}
                 style={[
                   styles.category,
-                  selectedCategory === cat.value && styles.categorySelected,
+                  selectedCategory === cat.strCategory && styles.categorySelected,
                 ]}
                 onPress={() => {
-                  if (selectedCategory === cat.value) {
+                  if (selectedCategory === cat.strCategory) {
                     // 🔁 Si vuelve a tocar → resetear
                     setSelectedCategory(null);
                     fetchAllMeals();
                   } else {
-                    setSelectedCategory(cat.value);
-                    fetchMealsByCategory(cat.value);
+                    setSelectedCategory(cat.strCategory);
+                    fetchMealsByCategory(cat.strCategory);
                   }
                 }}
               >
-                <Text>{cat.label}</Text>
+                <Text>
+                  {categoryTranslations[cat.strCategory]?.emoji} {categoryTranslations[cat.strCategory]?.label || cat.strCategory}
+                </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
