@@ -18,96 +18,23 @@ export default function RecipeDetailScreen({ route }: Props) {
   const [loading, setLoading] = useState(true);
   const [favorite, setFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients');
-  const [translatedInstructions, setTranslatedInstructions] = useState('');
-  const [translatedIngredients, setTranslatedIngredients] = useState<any[]>([]);
 
   useEffect(() => {
   fetchMealDetail();
   isFavorite(idMeal).then(setFavorite);
   }, []);
 
- const translateText = async (text: string): Promise<string> => {
-    const chunkSize = 450;
-    
-    if (text.length <= chunkSize) {
-      try {
-        const res = await fetch(
-          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|es`
-        );
-        const data = await res.json();
-        return data.responseData?.translatedText || text;
-      } catch {
-        return text;
-      }
-    }
-
-    // Dividir en oraciones para no cortar palabras
-    const sentences = text.match(/[^.!?\n]+[.!?\n]+/g) || [text];
-    const chunks: string[] = [];
-    let current = '';
-
-    for (const sentence of sentences) {
-      if ((current + sentence).length > chunkSize) {
-        if (current) chunks.push(current.trim());
-        current = sentence;
-      } else {
-        current += sentence;
-      }
-    }
-    if (current) chunks.push(current.trim());
-
-    const translated = await Promise.all(
-      chunks.map(async (chunk) => {
-        try {
-          const res = await fetch(
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|es`
-          );
-          const data = await res.json();
-          return data.responseData?.translatedText || chunk;
-        } catch {
-          return chunk;
-        }
-      })
-    );
-
-    return translated.join(' ');
-  };
-
-  const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-
   const fetchMealDetail = async () => {
     try {
       const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${idMeal}`);
       const data = await res.json();
       setMeal(data.meals[0]);
-      
-      const translated = await translateText(data.meals[0].strInstructions);
-      setTranslatedInstructions(translated);
-      const translatedIngredientsData = [];
-      for (let i = 1; i <= 20; i++) {
-        const ingredient = data.meals[0][`strIngredient${i}`];
-        const measure = data.meals[0][`strMeasure${i}`];
-
-        if (ingredient && ingredient.trim()) {
-
-          const translatedIngredient = await translateText(ingredient);
-
-          translatedIngredientsData.push({
-            ingredient: translatedIngredient,
-            measure,
-          });
-        }
-      }
-      setTranslatedIngredients(translatedIngredientsData);
-
     } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
-
-  
 
   const getIngredients = () => {
     if (!meal) return [];
@@ -144,7 +71,6 @@ export default function RecipeDetailScreen({ route }: Props) {
       </View>
     );
   }
-
 
   return (
     <View style={styles.container}>
@@ -201,17 +127,17 @@ export default function RecipeDetailScreen({ route }: Props) {
         {/* Contenido tabs */}
         {activeTab === 'ingredients' ? (
           <View style={styles.content}>
-            {translatedIngredients.map((item, index) => (
+            {getIngredients().map((item, index) => (
               <View key={index} style={styles.ingredientRow}>
                 <Text style={styles.ingredientDot}>●</Text>
-                <Text style={styles.ingredientName}>{capitalize(item.ingredient)}</Text>
+                <Text style={styles.ingredientName}>{item.ingredient}</Text>
                 <Text style={styles.ingredientMeasure}>{item.measure}</Text>
               </View>
             ))}
           </View>
         ) : (
           <View style={styles.content}>
-            {translatedInstructions?.split('\n').filter((s: string) => s.trim()).map((step: string, index: number) => (
+            {meal?.strInstructions?.split('\n').filter((s: string) => s.trim()).map((step: string, index: number) => (
               <View key={index} style={styles.stepRow}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>{index + 1}</Text>
