@@ -1,52 +1,27 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
 import React, { useEffect } from 'react';
+import { DeviceEventEmitter, ToastAndroid } from 'react-native';
 import { initDatabase } from './src/database/database';
 import AppNavigator from './src/navigation/AppNavigator';
+import { startFavoritesService } from './src/services/FavoritesServiceBridge';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+export default function App() {
+  useEffect(() => {
+    initDatabase();
+    startFavoritesService();
 
-function App() {
-  //const isDarkMode = useColorScheme() === 'dark';
-    useEffect(() => {
-      initDatabase();
-    }, []);
-    return <AppNavigator />;
-  /*
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
-  ); */
+    const subscription = DeviceEventEmitter.addListener(
+      'networkStatusChanged',
+      (isConnected: boolean) => {
+        if (!isConnected) {
+          ToastAndroid.show('Sin conexión a internet', ToastAndroid.LONG);
+        } else {
+          ToastAndroid.show('Conexión restaurada', ToastAndroid.SHORT);
+        }
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
+
+  return <AppNavigator />;
 }
-
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
-
-  return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
-
-export default App;

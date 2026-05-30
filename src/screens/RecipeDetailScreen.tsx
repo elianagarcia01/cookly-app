@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, Image, ScrollView,
-  TouchableOpacity, ActivityIndicator,
+  TouchableOpacity, ActivityIndicator, Linking,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -149,6 +149,15 @@ export default function RecipeDetailScreen({ route }: Props) {
         )}
       </ScrollView>
 
+       {/* Botón YouTube - Intent */}
+       {meal?.strYoutube ? (
+         <TouchableOpacity
+           style={styles.youtubeBtn}
+           onPress={() => Linking.openURL(meal.strYoutube)}>
+           <Text style={styles.youtubeBtnText}>▶ Ver en YouTube</Text>
+         </TouchableOpacity>
+       ) : null}
+
       {/* Botón favorito */}
       <TouchableOpacity style={styles.favoriteBtn} onPress={toggleFavorite}>
         <Text style={styles.favoriteBtnText}>
@@ -190,4 +199,6 @@ const styles = StyleSheet.create({
   stepText: { flex: 1, fontSize: 15, color: '#333', lineHeight: 22 },
   favoriteBtn: { margin: 16, backgroundColor: '#E07B39', borderRadius: 16, padding: 16, alignItems: 'center' },
   favoriteBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  youtubeBtn: { marginHorizontal: 16, marginBottom: 8, backgroundColor: '#FF0000', borderRadius: 16, padding: 16, alignItems: 'center' },
+  youtubeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
