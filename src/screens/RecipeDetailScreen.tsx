@@ -6,9 +6,10 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { saveFavorite, removeFavorite, isFavorite, getFavorites } from '../database/favoritesRepository';
-
+import { Button } from 'react-native-paper';
 import categoryTranslations from '../constants/categoryTranslations';
 import areaTranslations from '../constants/areaTranslations';
+import { fetchMealById } from '../services/mealDbApi';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecipeDetail'>;
 
@@ -26,9 +27,8 @@ export default function RecipeDetailScreen({ route }: Props) {
 
   const fetchMealDetail = async () => {
     try {
-      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${idMeal}`);
-      const data = await res.json();
-      setMeal(data.meals[0]);
+      const meal = await fetchMealById(idMeal);
+      setMeal(meal);
     } catch (error) {
       console.log(error);
     } finally {
@@ -151,19 +151,27 @@ export default function RecipeDetailScreen({ route }: Props) {
 
        {/* Botón YouTube - Intent */}
        {meal?.strYoutube ? (
-         <TouchableOpacity
-           style={styles.youtubeBtn}
+         <Button
+           mode="contained"
+           buttonColor="#FF0000"
+           textColor="#fff"
+           style={{ marginHorizontal: 16, marginBottom: 8, borderRadius: 16 }}
+           icon="play"
            onPress={() => Linking.openURL(meal.strYoutube)}>
-           <Text style={styles.youtubeBtnText}>▶ Ver en YouTube</Text>
-         </TouchableOpacity>
+           Ver en YouTube
+         </Button>
        ) : null}
 
       {/* Botón favorito */}
-      <TouchableOpacity style={styles.favoriteBtn} onPress={toggleFavorite}>
-        <Text style={styles.favoriteBtnText}>
-          {favorite ? '❤️ Guardado en Favoritos' : '🤍 Guardar en Favoritos'}
-        </Text>
-      </TouchableOpacity>
+      <Button
+        mode="contained"
+        buttonColor="#E07B39"
+        textColor="#fff"
+        style={{ margin: 16, borderRadius: 16 }}
+        icon={favorite ? 'heart' : 'heart-outline'}
+        onPress={toggleFavorite}>
+        {favorite ? 'Guardado en Favoritos' : 'Guardar en Favoritos'}
+      </Button>
     </View>
   );
 }
@@ -197,8 +205,5 @@ const styles = StyleSheet.create({
   stepNumber: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#E07B39', justifyContent: 'center', alignItems: 'center', marginRight: 12, marginTop: 2 },
   stepNumberText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
   stepText: { flex: 1, fontSize: 15, color: '#333', lineHeight: 22 },
-  favoriteBtn: { margin: 16, backgroundColor: '#E07B39', borderRadius: 16, padding: 16, alignItems: 'center' },
-  favoriteBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  youtubeBtn: { marginHorizontal: 16, marginBottom: 8, backgroundColor: '#FF0000', borderRadius: 16, padding: 16, alignItems: 'center' },
-  youtubeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+
 });
