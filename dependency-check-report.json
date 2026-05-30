@@ -1,0 +1,178 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@react-native-community/cli": {
+      "name": "@react-native-community/cli",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@react-native-community/cli-doctor"
+      ],
+      "effects": [],
+      "range": "13.2.0 - 20.1.1",
+      "nodes": [
+        "node_modules/@react-native-community/cli"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    },
+    "@react-native-community/cli-config-android": {
+      "name": "@react-native-community/cli-config-android",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "fast-xml-parser"
+      ],
+      "effects": [
+        "@react-native-community/cli-platform-android"
+      ],
+      "range": "<=20.1.1",
+      "nodes": [
+        "node_modules/@react-native-community/cli-config-android"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    },
+    "@react-native-community/cli-doctor": {
+      "name": "@react-native-community/cli-doctor",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "@react-native-community/cli-platform-android",
+        "@react-native-community/cli-platform-apple",
+        "@react-native-community/cli-platform-ios"
+      ],
+      "effects": [
+        "@react-native-community/cli"
+      ],
+      "range": "13.2.0 - 20.1.1",
+      "nodes": [
+        "node_modules/@react-native-community/cli-doctor"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    },
+    "@react-native-community/cli-platform-android": {
+      "name": "@react-native-community/cli-platform-android",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@react-native-community/cli-config-android"
+      ],
+      "effects": [
+        "@react-native-community/cli-doctor"
+      ],
+      "range": "15.1.1 - 20.1.1",
+      "nodes": [
+        "node_modules/@react-native-community/cli-platform-android"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    },
+    "@react-native-community/cli-platform-apple": {
+      "name": "@react-native-community/cli-platform-apple",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "fast-xml-parser"
+      ],
+      "effects": [
+        "@react-native-community/cli-doctor",
+        "@react-native-community/cli-platform-ios"
+      ],
+      "range": "<=20.1.1",
+      "nodes": [
+        "node_modules/@react-native-community/cli-platform-apple"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    },
+    "@react-native-community/cli-platform-ios": {
+      "name": "@react-native-community/cli-platform-ios",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "@react-native-community/cli-platform-apple"
+      ],
+      "effects": [],
+      "range": "13.2.0 - 20.1.1",
+      "nodes": [
+        "node_modules/@react-native-community/cli-platform-ios"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli-platform-ios",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    },
+    "fast-xml-parser": {
+      "name": "fast-xml-parser",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1117911,
+          "name": "fast-xml-parser",
+          "dependency": "fast-xml-parser",
+          "title": "fast-xml-parser XMLBuilder: XML Comment and CDATA Injection via Unescaped Delimiters",
+          "url": "https://github.com/advisories/GHSA-gh4j-gqv2-49f6",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-91"
+          ],
+          "cvss": {
+            "score": 6.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+          },
+          "range": "<5.7.0"
+        }
+      ],
+      "effects": [
+        "@react-native-community/cli-config-android",
+        "@react-native-community/cli-platform-apple"
+      ],
+      "range": "<5.7.0",
+      "nodes": [
+        "node_modules/fast-xml-parser"
+      ],
+      "fixAvailable": {
+        "name": "@react-native-community/cli",
+        "version": "20.1.3",
+        "isSemVerMajor": false
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 7,
+      "high": 0,
+      "critical": 0,
+      "total": 7
+    },
+    "dependencies": {
+      "prod": 602,
+      "dev": 309,
+      "optional": 1,
+      "peer": 0,
+      "peerOptional": 0,
+      "total": 910
+    }
+  }
+}

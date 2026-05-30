@@ -1,97 +1,216 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# 🍽️ Cookly — Buscador de Recetas
 
-# Getting Started
+App mobile Android para explorar y guardar recetas de cocina, desarrollada con React Native como proyecto final de la materia Aplicaciones Mobile.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Integrantes
 
-## Step 1: Start Metro
+| Nombre           | GitHub                                               |
+|------------------|------------------------------------------------------|
+| Eliana Garcia    | [@elianagarcia01] |
+| Serafin Gonzalez | @seragonzrov |
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Descripción
 
-```sh
-# Using npm
+Cookly permite buscar recetas por nombre o categoría (pollo, carne, postres, etc.), ver el detalle con ingredientes y preparación, abrir el video en YouTube y guardar recetas favoritas para consultarlas sin internet.
+
+**API utilizada:** [TheMealDB](https://www.themealdb.com/api.php) — API pública y gratuita con más de 300 recetas.
+
+---
+
+## Funcionalidades
+
+- Búsqueda de recetas por nombre
+- Filtros por categoría (Desayuno, Pasta, Pollo, Carne, Postres, etc.)
+- Detalle de receta con ingredientes, pasos de preparación y video de YouTube
+- Guardado de recetas favoritas en base de datos local (SQLite)
+- Acceso a favoritos sin conexión a internet
+- Aviso de conectividad cuando se pierde o restaura la red
+
+---
+
+## Arquitectura
+
+El proyecto sigue una arquitectura de **separación en capas**:
+
+```
+src/
+├── screens/        # Capa de presentación — pantallas de la app
+├── components/     # Componentes UI reutilizables
+├── services/       # Capa de datos remotos — llamadas a TheMealDB API
+├── database/       # Capa de datos locales — SQLite con op-sqlite
+├── navigation/     # Configuración de rutas y navegación
+├── hooks/          # Lógica reutilizable
+└── constants/      # Traducciones y constantes
+```
+
+### Pantallas
+
+| Pantalla | Descripción |
+|----------|-------------|
+| `HomeScreen` | Pantalla principal con buscador y filtros por categoría |
+| `SearchResultsScreen` | Resultados de búsqueda |
+| `RecipeDetailScreen` | Detalle de receta con ingredientes, preparación y YouTube |
+| `FavoritesScreen` | Recetas guardadas localmente |
+| `SplashScreen` | Pantalla de carga inicial |
+
+### Componentes Android nativos
+
+| Componente | Clase | Función |
+|------------|-------|---------|
+| Activity | `MainActivity.kt` | Pantalla principal, entrada de la app |
+| Service | `FavoritesService.java` | Sincronización de favoritos en background |
+| BroadcastReceiver | `NetworkReceiver.java` | Detecta cambios de conectividad |
+| ContentProvider | `FavoritesProvider.java` | Expone la tabla de favoritos |
+| Intent | `Linking.openURL()` en RecipeDetailScreen | Abre videos en YouTube |
+
+---
+
+## Stack tecnológico
+
+| Tecnología | Versión | Uso |
+|------------|---------|-----|
+| React Native | 0.85.3 | Framework principal |
+| TypeScript | 5.x | Lenguaje |
+| React Navigation | 7.x | Navegación entre pantallas |
+| @op-engineering/op-sqlite | latest | Base de datos local SQLite |
+| React Native Paper | latest | Componentes Material Design |
+| Axios | latest | Cliente HTTP |
+| TheMealDB API | v1 | Fuente de recetas |
+| Detekt | 1.23.6 | Análisis estático SAST |
+| Jest | latest | Tests unitarios |
+| Fastlane | latest | CI/CD automatización |
+
+---
+
+## Requisitos previos
+
+- Node.js v18 o superior
+- JDK 17 o superior
+- Android Studio con Android SDK
+- Emulador Android o dispositivo físico
+
+---
+
+## Pasos para compilar y ejecutar
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/elianagarcia01/cookly-app.git
+cd cookly-app
+```
+
+### 2. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 3. Iniciar Metro
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
 
-## Step 2: Build and run your app
+### 4. Correr en Android
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+En otra terminal:
 
-### Android
-
-```sh
-# Using npm
+```bash
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+---
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## Tests
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Correr los tests unitarios con Jest:
 
-```sh
-bundle install
+```bash
+npx jest
 ```
 
-Then, and every time you update your native dependencies, run:
+Los tests cubren el servicio `mealDbApi`:
+- `searchMeals` — búsqueda por nombre
+- `fetchCategories` — obtener categorías
+- `fetchMealsByCategory` — filtrar por categoría
+- `fetchMealById` — obtener detalle de receta
 
-```sh
-bundle exec pod install
+---
+
+## Seguridad y calidad
+
+### Detekt (SAST)
+
+Análisis estático del código Kotlin/Java:
+
+```bash
+cd android && ./gradlew detekt
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Reporte generado en: `android/app/build/reports/detekt/detekt.html`
 
-```sh
-# Using npm
-npm run ios
+Resultado: **0 code smells, 0 fallos críticos**
 
-# OR using Yarn
-yarn ios
+### Dependency Check
+
+Análisis de vulnerabilidades en dependencias:
+
+```bash
+npm audit
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Reporte generado en: `dependency-check-report.txt`
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+Resultado: 7 vulnerabilidades moderadas en dependencias del CLI de React Native (no en código propio).
 
-## Step 3: Modify your app
+---
 
-Now that you have successfully run the app, let's make changes!
+## Estructura del repositorio
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```
+cookly-app/
+├── android/                  # Proyecto Android nativo
+│   └── app/src/main/java/com/cookly/
+│       ├── MainActivity.kt
+│       ├── MainApplication.kt
+│       ├── NetworkReceiver.java
+│       ├── NetworkEventEmitter.java
+│       ├── NetworkPackage.kt
+│       ├── FavoritesService.java
+│       ├── FavoritesServiceModule.java
+│       └── FavoritesProvider.java
+├── src/
+│   ├── screens/
+│   ├── components/
+│   ├── services/
+│   ├── database/
+│   ├── navigation/
+│   ├── hooks/
+│   └── constants/
+├── __tests__/
+│   └── mealDbApi.test.ts
+├── App.tsx
+├── detekt-config.yml
+├── dependency-check-report.txt
+└── README.md
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+---
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+## Manual de usuario
 
-## Congratulations! :tada:
+1. **Buscar recetas** — escribí en la barra de búsqueda o tocá una categoría
+2. **Ver detalle** — tocá cualquier receta para ver ingredientes y preparación
+3. **Ver en YouTube** — tocá el botón rojo en el detalle para abrir el video
+4. **Guardar favorito** — tocá "Guardar en Favoritos" en el detalle
+5. **Ver favoritos** — tocá el ícono de corazón en la barra de navegación
+6. **Eliminar favorito** — en la pantalla de favoritos, deslizá o tocá eliminar
 
-You've successfully run and modified your React Native App. :partying_face:
+---
 
-### Now what?
+## Mockups
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Los mockups fueron diseñados en Figma con flujo de navegación entre las 5 pantallas.
