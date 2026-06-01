@@ -7,9 +7,11 @@ import { useNavigation } from '@react-navigation/native';
 
 import categoryTranslations from '../constants/categoryTranslations';
 import areaTranslations from '../constants/areaTranslations';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 
 export default function SearchScreen() {
   const navigation = useNavigation<any>();
+  const isConnected = useNetworkStatus();
   const [query, setQuery] = useState('');
   const [meals, setMeals] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,13 @@ export default function SearchScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Banner sin conexión */}
+      {!isConnected && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineText}>Sin conexión a internet</Text>
+        </View>
+      )}
+
       {/* Barra de búsqueda */}
       <View style={styles.searchBar}>
         <Text style={styles.searchIcon}>🔍</Text>
@@ -116,4 +125,6 @@ const styles = StyleSheet.create({
   name: { fontSize: 16, fontWeight: 'bold', color: '#1a1a1a' },
   category: { fontSize: 13, color: '#888', marginTop: 4 },
   area: { fontSize: 12, color: '#E07B39', marginTop: 2 },
+  offlineBanner: { backgroundColor: '#ff4444', borderRadius: 8, padding: 10, marginBottom: 12 },
+  offlineText: { color: '#fff', textAlign: 'center', fontWeight: '600' },
 });

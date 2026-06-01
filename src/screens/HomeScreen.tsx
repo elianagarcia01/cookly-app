@@ -13,9 +13,11 @@ import {
 import categoryTranslations from '../constants/categoryTranslations';
 import { useNavigation } from '@react-navigation/native';
 import { searchMeals, fetchCategories, fetchMealsByCategory } from '../services/mealDbApi';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
+  const isConnected = useNetworkStatus();
   const [meals, setMeals] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
@@ -78,6 +80,13 @@ export default function HomeScreen() {
         <View>
           <Text style={styles.title}>Descubre Recetas</Text>
 
+          {/* Banner sin conexión */}
+          {!isConnected && (
+            <View style={styles.offlineBanner}>
+              <Text style={styles.offlineText}>Sin conexión a internet</Text>
+            </View>
+          )}
+
           {/* Buscador */}
           <TextInput
             placeholder="Buscar recetas..."
@@ -136,4 +145,6 @@ const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: '#fff', margin: 6, borderRadius: 12, overflow: 'hidden' },
   image: { width: '100%', height: 120 },
   cardTitle: { padding: 10, fontWeight: '600' },
+  offlineBanner: { backgroundColor: '#ff4444', borderRadius: 8, padding: 10, marginBottom: 12 },
+  offlineText: { color: '#fff', textAlign: 'center', fontWeight: '600' },
 });
