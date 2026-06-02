@@ -145,7 +145,7 @@ export default function HomeScreen() {
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               {selectedCategory
-                ? categories.find(c => c.value === selectedCategory)?.label
+                ? categoryTranslations[selectedCategory]?.label || selectedCategory
                 : 'Recetas Populares'}
             </Text>
           </View>

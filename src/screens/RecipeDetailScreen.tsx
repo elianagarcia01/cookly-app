@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, Image, ScrollView,
-  TouchableOpacity, ActivityIndicator, Linking,
+  TouchableOpacity, ActivityIndicator, Linking, Share,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -50,6 +50,13 @@ export default function RecipeDetailScreen({ route }: Props) {
     return ingredients;
   };
 
+  const handleShare = () => {
+    Share.share({
+      message: `¡Mirá esta receta en Cookly! cookly://recipe/${idMeal}`,
+      title: meal?.strMeal,
+    });
+  };
+
   const toggleFavorite = async () => {
     if (favorite) {
       removeFavorite(idMeal);
@@ -57,7 +64,7 @@ export default function RecipeDetailScreen({ route }: Props) {
     } else {
       saveFavorite({
         idMeal,
-        strMeal,
+        strMeal: strMeal || meal?.strMeal || '',
         strCategory: meal?.strCategory || '',
         strMealThumb: meal?.strMealThumb || '',
       });
@@ -85,10 +92,24 @@ export default function RecipeDetailScreen({ route }: Props) {
         </View>
 
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>{meal?.strMeal}</Text>
+          <View style={styles.titleRow}>
+            <Text style={[styles.title, { color: colors.text, flex: 1 }]}>{meal?.strMeal}</Text>
+            <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
+              <Text style={styles.shareEmoji}>🔗</Text>
+            </TouchableOpacity>
+          </View>
+          {/*meal?.strTags && (
+            <View style={styles.tagsRow}>
+              {meal.strTags.split(',').map((tag: string) => (
+                <View key={tag} style={[styles.tag, { backgroundColor: colors.inputBackground }]}>
+                  <Text style={[styles.tagText, { color: colors.textSecondary }]}>{tag.trim()}</Text>
+                </View>
+              ))}
+            </View>
+          )*/}
         </View>
 
-        <View style={styles.infoRow}>
+        {/* <View style={styles.infoRow}>
           <View style={styles.infoItem}>
             <Text style={styles.infoEmoji}>⏱️</Text>
             <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>30 min</Text>
@@ -101,7 +122,11 @@ export default function RecipeDetailScreen({ route }: Props) {
             <Text style={styles.infoEmoji}>📍</Text>
             <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{meal?.strArea}</Text>
           </View>
-        </View>
+          <TouchableOpacity style={styles.infoItem} onPress={handleShare}>
+            <Text style={styles.infoEmoji}>🔗</Text>
+            <Text style={[styles.infoLabel, { color: colors.primary }]}>Compartir</Text>
+          </TouchableOpacity>
+        </View> */}
 
         <View style={[styles.tabs, { backgroundColor: colors.inputBackground }]}>
           <TouchableOpacity
@@ -180,6 +205,12 @@ const styles = StyleSheet.create({
   categoryText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
   header: { padding: 16, paddingBottom: 8 },
   title: { fontSize: 26, fontWeight: 'bold' },
+  titleRow: { flexDirection: 'row', alignItems: 'center' },
+  shareButton: { padding: 8 },
+  shareEmoji: { fontSize: 22 },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8, gap: 6 },
+  tag: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  tagText: { fontSize: 12 },
   infoRow: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16 },
   infoItem: { flex: 1, alignItems: 'center' },
   infoEmoji: { fontSize: 20 },

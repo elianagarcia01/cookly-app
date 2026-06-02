@@ -26,7 +26,12 @@ Cookly permite buscar recetas por nombre o categoría (pollo, carne, postres, et
 - Detalle de receta con ingredientes, pasos de preparación y video de YouTube
 - Guardado de recetas favoritas en base de datos local (SQLite)
 - Acceso a favoritos sin conexión a internet
-- Aviso de conectividad cuando se pierde o restaura la red
+- Detección de conectividad al arrancar y durante el uso — pantalla de error si no hay red
+- Modo oscuro automático según el sistema operativo
+- Splash screen animado al iniciar la app
+- Compartir recetas mediante deep links (`cookly://recipe/:idMeal`)
+- Cache en memoria para reducir llamadas repetidas a la API
+- CI/CD con Fastlane (build) y GitHub Actions (tests automáticos)
 
 ---
 
@@ -49,11 +54,12 @@ src/
 
 | Pantalla | Descripción |
 |----------|-------------|
+| `SplashScreen` | Pantalla de carga inicial con animación en video |
 | `HomeScreen` | Pantalla principal con buscador y filtros por categoría |
-| `SearchResultsScreen` | Resultados de búsqueda |
-| `RecipeDetailScreen` | Detalle de receta con ingredientes, preparación y YouTube |
-| `FavoritesScreen` | Recetas guardadas localmente |
-| `SplashScreen` | Pantalla de carga inicial |
+| `SearchScreen` | Búsqueda de recetas por nombre contra la API |
+| `RecipeDetailScreen` | Detalle de receta con ingredientes, preparación, YouTube y compartir |
+| `FavoritesScreen` | Recetas guardadas localmente en SQLite |
+| `NoConnectionScreen` | Pantalla de error cuando no hay conexión a internet |
 
 ### Componentes Android nativos
 
@@ -76,17 +82,19 @@ src/
 | React Navigation | 7.x | Navegación entre pantallas |
 | @op-engineering/op-sqlite | latest | Base de datos local SQLite |
 | React Native Paper | latest | Componentes Material Design |
-| Axios | latest | Cliente HTTP |
+| @react-native-community/netinfo | latest | Detección de conectividad |
+| react-native-video | latest | Splash screen animado |
 | TheMealDB API | v1 | Fuente de recetas |
 | Detekt | 1.23.6 | Análisis estático SAST |
 | Jest | latest | Tests unitarios |
-| Fastlane | latest | CI/CD automatización |
+| Fastlane | latest | CI/CD — build automatizado |
+| GitHub Actions | — | CI/CD — tests automáticos en cada push |
 
 ---
 
 ## Requisitos previos
 
-- Node.js v18 o superior
+- Node.js v22 o superior
 - JDK 17 o superior
 - Android Studio con Android SDK
 - Emulador Android o dispositivo físico
@@ -200,15 +208,27 @@ cookly-app/
 │       ├── FavoritesService.java
 │       ├── FavoritesServiceModule.java
 │       └── FavoritesProvider.java
+├── .github/workflows/ci.yml  # GitHub Actions — tests automáticos
+├── android/                  # Proyecto Android nativo
+│   ├── fastlane/             # Configuración de Fastlane
+│   └── app/src/main/java/com/cookly/
+│       ├── MainActivity.kt
+│       ├── NetworkReceiver.java
+│       ├── NetworkEventEmitter.java
+│       ├── NetworkPackage.kt
+│       ├── FavoritesService.java
+│       ├── FavoritesServiceModule.java
+│       └── FavoritesProvider.java
 ├── src/
-│   ├── screens/
-│   ├── components/
-│   ├── services/
-│   ├── database/
-│   ├── navigation/
-│   ├── hooks/
-│   └── constants/
-├── __tests__/
+│   ├── screens/              # Pantallas de la app
+│   ├── services/             # Llamadas a TheMealDB API
+│   ├── database/             # SQLite — favoritos
+│   ├── navigation/           # Rutas y navegación
+│   ├── hooks/                # useNetworkStatus
+│   ├── theme/                # Colores light/dark y ThemeContext
+│   ├── assets/               # Splash screen (video)
+│   └── constants/            # Traducciones de categorías y áreas
+├── __tests_/
 │   └── mealDbApi.test.ts
 ├── App.tsx
 ├── detekt-config.yml
@@ -225,7 +245,10 @@ cookly-app/
 3. **Ver en YouTube** — tocá el botón rojo en el detalle para abrir el video
 4. **Guardar favorito** — tocá "Guardar en Favoritos" en el detalle
 5. **Ver favoritos** — tocá el ícono de corazón en la barra de navegación
-6. **Eliminar favorito** — en la pantalla de favoritos, deslizá o tocá eliminar
+6. **Eliminar favorito** — en la pantalla de favoritos tocá eliminar
+7. **Compartir receta** — tocá el ícono 🔗 al lado del nombre para compartir el link
+8. **Abrir receta por link** — abrí `cookly://recipe/:idMeal` para ir directo al detalle
+9. **Modo oscuro** — la app sigue automáticamente el tema del sistema operativo
 
 ---
 
