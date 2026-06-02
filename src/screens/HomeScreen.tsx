@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 
 import categoryTranslations from '../constants/categoryTranslations';
@@ -16,11 +17,14 @@ import { searchMeals, fetchCategories, fetchMealsByCategory } from '../services/
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { useTheme } from '../theme/ThemeContext';
 
+const TOP_CATEGORIES = ['Beef', 'Chicken', 'Pasta', 'Seafood', 'Dessert'];
+
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { isConnected } = useNetworkStatus();
   const colors = useTheme();
-  const [meals, setMeals] = useState([]);
+  const [meals, setMeals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -41,25 +45,38 @@ export default function HomeScreen() {
 
   const fetchAllMeals = async () => {
     try {
+      setLoading(true);
       const meals = await searchMeals();
       setMeals(meals);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchMealsByCategoryData = async (category: string) => {
     try {
+      setLoading(true);
       const meals = await fetchMealsByCategory(category);
       setMeals(meals);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const prefetchTopCategories = () => {
+    TOP_CATEGORIES.forEach(category => {
+      fetchMealsByCategory(category).catch(() => {});
+    });
   };
 
   useEffect(() => {
     fetchAllMeals();
     fetchCategoriesData();
+    prefetchTopCategories();
   }, []);
 
   const renderMeal = ({ item }: any) => (
@@ -79,6 +96,9 @@ export default function HomeScreen() {
       numColumns={2}
       renderItem={renderMeal}
       contentContainerStyle={{ padding: 16 }}
+      ListEmptyComponent={
+        loading ? <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} /> : null
+      }
       ListHeaderComponent={
         <View>
           <Text style={[styles.title, { color: colors.text }]}>Descubre Recetas</Text>
