@@ -124,6 +124,24 @@ npm run android
 
 ---
 
+## CI/CD con Fastlane
+
+Fastlane automatiza el proceso de build. Desde la carpeta `android/`:
+
+```bash
+cd android
+
+# Generar APK de debug
+fastlane build_debug
+
+# Correr tests
+fastlane test
+```
+
+El APK generado se encuentra en `android/app/build/outputs/apk/debug/app-debug.apk`.
+
+---
+
 ## Tests
 
 Correr los tests unitarios con Jest:

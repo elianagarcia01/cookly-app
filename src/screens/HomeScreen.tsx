@@ -8,15 +8,23 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 
 import categoryTranslations from '../constants/categoryTranslations';
 import { useNavigation } from '@react-navigation/native';
 import { searchMeals, fetchCategories, fetchMealsByCategory } from '../services/mealDbApi';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useTheme } from '../theme/ThemeContext';
+
+const TOP_CATEGORIES = ['Beef', 'Chicken', 'Pasta', 'Seafood', 'Dessert'];
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const [meals, setMeals] = useState([]);
+  const { isConnected } = useNetworkStatus();
+  const colors = useTheme();
+  const [meals, setMeals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [searchText, setSearchText] = useState('');
@@ -37,63 +45,85 @@ export default function HomeScreen() {
 
   const fetchAllMeals = async () => {
     try {
+      setLoading(true);
       const meals = await searchMeals();
       setMeals(meals);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchMealsByCategoryData = async (category: string) => {
     try {
+      setLoading(true);
       const meals = await fetchMealsByCategory(category);
       setMeals(meals);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const prefetchTopCategories = () => {
+    TOP_CATEGORIES.forEach(category => {
+      fetchMealsByCategory(category).catch(() => {});
+    });
   };
 
   useEffect(() => {
     fetchAllMeals();
     fetchCategoriesData();
+    prefetchTopCategories();
   }, []);
 
   const renderMeal = ({ item }: any) => (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.card }]}
       onPress={() => navigation.navigate('RecipeDetail', { idMeal: item.idMeal, strMeal: item.strMeal })}>
       <Image source={{ uri: item.strMealThumb }} style={styles.image} />
-      <Text style={styles.cardTitle}>{item.strMeal}</Text>
+      <Text style={[styles.cardTitle, { color: colors.text }]}>{item.strMeal}</Text>
     </TouchableOpacity>
   );
 
   return (
     <FlatList
+      style={{ backgroundColor: colors.background }}
       data={meals.filter((item: any) => item.strMeal.toLowerCase().includes(searchText.toLowerCase()))}
       keyExtractor={(item: any) => item.idMeal.toString()}
       numColumns={2}
       renderItem={renderMeal}
       contentContainerStyle={{ padding: 16 }}
+      ListEmptyComponent={
+        loading ? <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} /> : null
+      }
       ListHeaderComponent={
         <View>
-          <Text style={styles.title}>Descubre Recetas</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Descubre Recetas</Text>
 
-          {/* Buscador */}
+          {!isConnected && (
+            <View style={styles.offlineBanner}>
+              <Text style={styles.offlineText}>Sin conexión a internet</Text>
+            </View>
+          )}
+
           <TextInput
             placeholder="Buscar recetas..."
-            style={styles.search}
-            placeholderTextColor="#999"
+            style={[styles.search, { backgroundColor: colors.inputBackground, color: colors.text }]}
+            placeholderTextColor={colors.textSecondary}
             value={searchText}
             onChangeText={setSearchText}
           />
 
-          {/* Categorías */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {categories.map(cat => (
               <TouchableOpacity
                 key={cat.strCategory}
                 style={[
                   styles.category,
+                  { backgroundColor: colors.categoryBackground },
                   selectedCategory === cat.strCategory && styles.categorySelected,
                 ]}
                 onPress={() => {
@@ -105,16 +135,15 @@ export default function HomeScreen() {
                     fetchMealsByCategoryData(cat.strCategory);
                   }
                 }}>
-                <Text>
+                <Text style={{ color: colors.text }}>
                   {categoryTranslations[cat.strCategory]?.emoji} {categoryTranslations[cat.strCategory]?.label || cat.strCategory}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {/* Título dinámico */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
               {selectedCategory
                 ? categories.find(c => c.value === selectedCategory)?.label
                 : 'Recetas Populares'}
@@ -128,12 +157,14 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  search: { backgroundColor: '#EAEAEA', borderRadius: 10, padding: 12, marginBottom: 15 },
-  category: { backgroundColor: '#EDE0D4', padding: 12, borderRadius: 12, marginRight: 10 },
+  search: { borderRadius: 10, padding: 12, marginBottom: 15 },
+  category: { padding: 12, borderRadius: 12, marginRight: 10 },
   categorySelected: { backgroundColor: '#FFD166' },
   section: { marginTop: 20, marginBottom: 10 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold' },
-  card: { flex: 1, backgroundColor: '#fff', margin: 6, borderRadius: 12, overflow: 'hidden' },
+  card: { flex: 1, margin: 6, borderRadius: 12, overflow: 'hidden' },
   image: { width: '100%', height: 120 },
   cardTitle: { padding: 10, fontWeight: '600' },
+  offlineBanner: { backgroundColor: '#ff4444', borderRadius: 8, padding: 10, marginBottom: 12 },
+  offlineText: { color: '#fff', textAlign: 'center', fontWeight: '600' },
 });
