@@ -5,24 +5,25 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { saveFavorite, removeFavorite, isFavorite, getFavorites } from '../database/favoritesRepository';
+import { saveFavorite, removeFavorite, isFavorite } from '../database/favoritesRepository';
 import { Button } from 'react-native-paper';
 import categoryTranslations from '../constants/categoryTranslations';
-import areaTranslations from '../constants/areaTranslations';
 import { fetchMealById } from '../services/mealDbApi';
+import { useTheme } from '../theme/ThemeContext';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RecipeDetail'>;
 
 export default function RecipeDetailScreen({ route }: Props) {
   const { idMeal, strMeal } = route.params;
+  const colors = useTheme();
   const [meal, setMeal] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [favorite, setFavorite] = useState(false);
   const [activeTab, setActiveTab] = useState<'ingredients' | 'instructions'>('ingredients');
 
   useEffect(() => {
-  fetchMealDetail();
-  isFavorite(idMeal).then(setFavorite);
+    fetchMealDetail();
+    isFavorite(idMeal).then(setFavorite);
   }, []);
 
   const fetchMealDetail = async () => {
@@ -50,88 +51,82 @@ export default function RecipeDetailScreen({ route }: Props) {
   };
 
   const toggleFavorite = async () => {
-  if (favorite) {
-    removeFavorite(idMeal);
-    setFavorite(false);
-  } else {
-    saveFavorite({
-      idMeal,
-      strMeal,
-      strCategory: meal?.strCategory || '',
-      strMealThumb: meal?.strMealThumb || '',
-    });
-    setFavorite(true);
-  }
-};
+    if (favorite) {
+      removeFavorite(idMeal);
+      setFavorite(false);
+    } else {
+      saveFavorite({
+        idMeal,
+        strMeal,
+        strCategory: meal?.strCategory || '',
+        strMealThumb: meal?.strMealThumb || '',
+      });
+      setFavorite(true);
+    }
+  };
 
   if (loading) {
     return (
-      <View style={styles.loading}>
+      <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color="#E07B39" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView>
-        {/* Imagen */}
         <Image source={{ uri: meal?.strMealThumb }} style={styles.image} />
 
-        {/* Categoría */}
         <View style={styles.categoryBadge}>
           <Text style={styles.categoryText}>
-            {/*categoryTranslations[meal?.strCategory]?.emoji*/}{categoryTranslations[meal?.strCategory]?.label || meal?.strCategory}
+            {categoryTranslations[meal?.strCategory]?.label || meal?.strCategory}
           </Text>
         </View>
 
-        {/* Nombre */}
         <View style={styles.header}>
-          <Text style={styles.title}>{meal?.strMeal}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{meal?.strMeal}</Text>
         </View>
 
-        {/* Info */}
         <View style={styles.infoRow}>
           <View style={styles.infoItem}>
             <Text style={styles.infoEmoji}>⏱️</Text>
-            <Text style={styles.infoLabel}>30 min</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>30 min</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoEmoji}>👥</Text>
-            <Text style={styles.infoLabel}>4 personas</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>4 personas</Text>
           </View>
           <View style={styles.infoItem}>
             <Text style={styles.infoEmoji}>📍</Text>
-            <Text style={styles.infoLabel}>{meal?.strArea}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{meal?.strArea}</Text>
           </View>
         </View>
 
-        {/* Tabs */}
-        <View style={styles.tabs}>
+        <View style={[styles.tabs, { backgroundColor: colors.inputBackground }]}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'ingredients' && styles.tabActive]}
+            style={[styles.tab, activeTab === 'ingredients' && { backgroundColor: colors.card }]}
             onPress={() => setActiveTab('ingredients')}>
-            <Text style={[styles.tabText, activeTab === 'ingredients' && styles.tabTextActive]}>
+            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'ingredients' && { color: colors.primary }]}>
               Ingredientes
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'instructions' && styles.tabActive]}
+            style={[styles.tab, activeTab === 'instructions' && { backgroundColor: colors.card }]}
             onPress={() => setActiveTab('instructions')}>
-            <Text style={[styles.tabText, activeTab === 'instructions' && styles.tabTextActive]}>
+            <Text style={[styles.tabText, { color: colors.textSecondary }, activeTab === 'instructions' && { color: colors.primary }]}>
               Preparación
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Contenido tabs */}
         {activeTab === 'ingredients' ? (
           <View style={styles.content}>
             {getIngredients().map((item, index) => (
-              <View key={index} style={styles.ingredientRow}>
-                <Text style={styles.ingredientDot}>●</Text>
-                <Text style={styles.ingredientName}>{item.ingredient}</Text>
-                <Text style={styles.ingredientMeasure}>{item.measure}</Text>
+              <View key={index} style={[styles.ingredientRow, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.ingredientDot, { color: colors.primary }]}>●</Text>
+                <Text style={[styles.ingredientName, { color: colors.text }]}>{item.ingredient}</Text>
+                <Text style={[styles.ingredientMeasure, { color: colors.textSecondary }]}>{item.measure}</Text>
               </View>
             ))}
           </View>
@@ -142,27 +137,25 @@ export default function RecipeDetailScreen({ route }: Props) {
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>{index + 1}</Text>
                 </View>
-                <Text style={styles.stepText}>{step}</Text>
+                <Text style={[styles.stepText, { color: colors.text }]}>{step}</Text>
               </View>
             ))}
           </View>
         )}
       </ScrollView>
 
-       {/* Botón YouTube - Intent */}
-       {meal?.strYoutube ? (
-         <Button
-           mode="contained"
-           buttonColor="#FF0000"
-           textColor="#fff"
-           style={{ marginHorizontal: 16, marginBottom: 8, borderRadius: 16 }}
-           icon="play"
-           onPress={() => Linking.openURL(meal.strYoutube)}>
-           Ver en YouTube
-         </Button>
-       ) : null}
+      {meal?.strYoutube ? (
+        <Button
+          mode="contained"
+          buttonColor="#FF0000"
+          textColor="#fff"
+          style={{ marginHorizontal: 16, marginBottom: 8, borderRadius: 16 }}
+          icon="play"
+          onPress={() => Linking.openURL(meal.strYoutube)}>
+          Ver en YouTube
+        </Button>
+      ) : null}
 
-      {/* Botón favorito */}
       <Button
         mode="contained"
         buttonColor="#E07B39"
@@ -177,7 +170,7 @@ export default function RecipeDetailScreen({ route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   image: { width: '100%', height: 250 },
   categoryBadge: {
@@ -186,24 +179,21 @@ const styles = StyleSheet.create({
   },
   categoryText: { color: '#fff', fontWeight: 'bold', fontSize: 12 },
   header: { padding: 16, paddingBottom: 8 },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#1a1a1a' },
+  title: { fontSize: 26, fontWeight: 'bold' },
   infoRow: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 16 },
   infoItem: { flex: 1, alignItems: 'center' },
   infoEmoji: { fontSize: 20 },
-  infoLabel: { fontSize: 12, color: '#666', marginTop: 4 },
-  tabs: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 8, backgroundColor: '#f0f0f0', borderRadius: 12, padding: 4 },
+  infoLabel: { fontSize: 12, marginTop: 4 },
+  tabs: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 8, borderRadius: 12, padding: 4 },
   tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 10 },
-  tabActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  tabText: { color: '#888', fontWeight: '600' },
-  tabTextActive: { color: '#E07B39' },
+  tabText: { fontWeight: '600' },
   content: { padding: 16 },
-  ingredientRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  ingredientDot: { color: '#E07B39', marginRight: 8 },
-  ingredientName: { flex: 1, fontSize: 15, color: '#1a1a1a' },
-  ingredientMeasure: { fontSize: 14, color: '#888' },
+  ingredientRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1 },
+  ingredientDot: { marginRight: 8 },
+  ingredientName: { flex: 1, fontSize: 15 },
+  ingredientMeasure: { fontSize: 14 },
   stepRow: { flexDirection: 'row', marginBottom: 16 },
   stepNumber: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#E07B39', justifyContent: 'center', alignItems: 'center', marginRight: 12, marginTop: 2 },
   stepNumberText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
-  stepText: { flex: 1, fontSize: 15, color: '#333', lineHeight: 22 },
-
+  stepText: { flex: 1, fontSize: 15, lineHeight: 22 },
 });

@@ -1,10 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NativeEventEmitter, NativeModules } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 
 export function useNetworkStatus() {
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+
+  const checkConnection = useCallback(async () => {
+    const state = await NetInfo.fetch();
+    setIsConnected(state.isConnected ?? true);
+  }, []);
 
   useEffect(() => {
+    checkConnection();
+
     if (!NativeModules.NetworkEventEmitter) return;
 
     const emitter = new NativeEventEmitter(NativeModules.NetworkEventEmitter);
@@ -13,7 +21,7 @@ export function useNetworkStatus() {
     });
 
     return () => subscription.remove();
-  }, []);
+  }, [checkConnection]);
 
-  return isConnected;
+  return { isConnected, recheckConnection: checkConnection };
 }
