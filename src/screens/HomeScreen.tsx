@@ -95,6 +95,7 @@ export default function HomeScreen() {
       keyExtractor={(item: any) => item.idMeal.toString()}
       numColumns={2}
       renderItem={renderMeal}
+      keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ padding: 16 }}
       ListEmptyComponent={
         loading ? <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} /> : null
@@ -109,13 +110,20 @@ export default function HomeScreen() {
             </View>
           )}
 
-          <TextInput
-            placeholder="Buscar recetas..."
-            style={[styles.search, { backgroundColor: colors.inputBackground, color: colors.text }]}
-            placeholderTextColor={colors.textSecondary}
-            value={searchText}
-            onChangeText={setSearchText}
-          />
+          <View style={[styles.searchRow, { backgroundColor: colors.inputBackground }]}>
+            <TextInput
+              placeholder="Buscar recetas..."
+              style={[styles.search, { color: colors.text }]}
+              placeholderTextColor={colors.textSecondary}
+              value={searchText}
+              onChangeText={setSearchText}
+            />
+            {searchText.length > 0 && (
+              <TouchableOpacity onPress={() => setSearchText('')}>
+                <Text style={[styles.clearIcon, { color: colors.textSecondary }]}>✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {categories.map(cat => (
@@ -157,7 +165,9 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  search: { borderRadius: 10, padding: 12, marginBottom: 15 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', borderRadius: 10, marginBottom: 15, paddingHorizontal: 12 },
+  search: { flex: 1, padding: 12 },
+  clearIcon: { fontSize: 16, padding: 4 },
   category: { padding: 12, borderRadius: 12, marginRight: 10 },
   categorySelected: { backgroundColor: '#FFD166' },
   section: { marginTop: 20, marginBottom: 10 },
