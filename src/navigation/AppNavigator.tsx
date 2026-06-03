@@ -8,10 +8,13 @@ import HomeScreen from '../screens/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import RecipeDetailScreen from '../screens/RecipeDetailScreen';
+import SplashScreen from '../screens/SplashScreen';
+import { useTheme } from '../theme/ThemeContext';
 
 export type RootStackParamList = {
+  Splash: undefined;
   MainTabs: undefined;
-  RecipeDetail: { idMeal: string; strMeal: string };
+  RecipeDetail: { idMeal: string; strMeal?: string };
 };
 
 export type TabParamList = {
@@ -24,13 +27,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function TabNavigator() {
+  const colors = useTheme();
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#E07B39',
         tabBarInactiveTintColor: '#888',
-        tabBarStyle: { backgroundColor: '#1a1a1a', borderTopWidth: 0 },
+        tabBarStyle: { backgroundColor: colors.card, borderTopWidth: 0 },
       }}>
       <Tab.Screen
         name="Home"
@@ -51,10 +55,21 @@ function TabNavigator() {
   );
 }
 
+const linking = {
+  prefixes: ['cookly://'],
+  config: {
+    screens: {
+      MainTabs: '',
+      RecipeDetail: 'recipe/:idMeal',
+    },
+  },
+};
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer linking={linking}>
+      <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+        <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="MainTabs" component={TabNavigator} />
         <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
       </Stack.Navigator>

@@ -94,7 +94,7 @@ export default function SearchScreen() {
                 <View style={styles.info}>
                   <Text style={[styles.name, { color: colors.text }]}>{item.strMeal}</Text>
                   <Text style={[styles.category, { color: colors.textSecondary }]}>{categoryTranslations[item?.strCategory]?.label || item?.strCategory}</Text>
-                  <Text style={[styles.area, { color: colors.primary }]}>{areaTranslations[item?.strArea]?.label || item?.strArea}</Text>
+                  <Text style={[styles.area, { color: colors.primary }]}>{areaTranslations[item?.strArea] || item?.strArea}</Text>
                 </View>
               </TouchableOpacity>
             )}

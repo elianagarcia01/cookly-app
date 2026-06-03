@@ -13,9 +13,10 @@ export function useNetworkStatus() {
   useEffect(() => {
     checkConnection();
 
-    if (!NativeModules.NetworkEventEmitter) return;
+    const module = NativeModules.NetworkEventEmitter;
+    if (!module?.addListener || !module?.removeListeners) return;
 
-    const emitter = new NativeEventEmitter(NativeModules.NetworkEventEmitter);
+    const emitter = new NativeEventEmitter(module);
     const subscription = emitter.addListener('networkStatusChanged', (connected: boolean) => {
       setIsConnected(connected);
     });
