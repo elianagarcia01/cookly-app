@@ -9,8 +9,6 @@ App mobile Android para explorar y guardar recetas de cocina, desarrollada con R
 | Eliana Garcia    | [@elianagarcia01] |
 | Serafin Gonzalez | @seragonzrov |
 
-
-Drive: https://drive.google.com/drive/u/1/folders/19kpOUUAhy5GYNgu5LCp7TTsqqE1D0i4k
 ---
 
 ## Descripción
@@ -261,3 +259,9 @@ cookly-app/
 ## Mockups
 
 Los mockups fueron diseñados en Figma con flujo de navegación entre las 5 pantallas.
+
+---
+
+## Drive
+
+https://drive.google.com/drive/u/1/folders/19kpOUUAhy5GYNgu5LCp7TTsqqE1D0i4k
