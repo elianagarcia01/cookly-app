@@ -134,10 +134,14 @@ npm run android
 
 ## CI/CD con Fastlane
 
-Fastlane automatiza el proceso de build. Desde la carpeta `android/`:
+Fastlane automatiza el proceso de build. Desde la carpeta `android/` (en PowerShell):
 
-```bash
+```powershell
 cd android
+
+# Setear variables de entorno requeridas
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-17"
+$env:ANDROID_HOME = "C:\Users\<tu-usuario>\AppData\Local\Android\Sdk"
 
 # Generar APK de debug
 fastlane build_debug
